@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://wine-about-it.vercel.app/sitemap.xml
