@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "./ui";
-import { allWines, wineTerms } from "../data";
+import { allWines, wineTerms, pairingData } from "../data";
+
+import { go } from "../lib/router";
 
 const SECTIONS = [
-  ["Learn the basics", "learn"], ["Ask Sommy (AI chat)", "ask"], ["Wine directory", "directory"], ["Find my wine", "finder"],
-  ["Wine words A–Z", "words"], ["Food pairing", "pairing"], ["Glass Lab (3D)", "glass-lab"], ["Wine world", "world"], ["Myths", "myths"],
+  ["Home", "home"], ["Learn: wine styles", "learn", "styles"], ["Learn: tasting in 5 steps", "learn", "tasting"], ["Learn: words A to Z", "learn", "words"],
+  ["Learn: read a label", "learn", "labels"], ["Learn: glasses and the 3D glass", "learn", "glasses"], ["Learn: myths", "learn", "myths"],
+  ["Wines and the flavor map", "wines"], ["Wine finder quiz", "wines", "finder"], ["Food pairing", "pair"], ["Wine regions", "pair", "world"],
+  ["Party planner", "tools", "party"], ["Chill timer", "tools", "chill"], ["Leftover wine guide", "tools", "leftovers"], ["My cellar", "cellar"], ["Tasting journal", "cellar", "journal"],
 ];
 
-export default function Palette({ open, onClose, actions, onPickWine, onPickTerm, onGoto }) {
+export default function Palette({ open, onClose, actions, onPickWine, onPickTerm }) {
   const [q, setQ] = useState("");
   const [idx, setIdx] = useState(0);
   const inputRef = useRef(null);
@@ -25,13 +29,14 @@ export default function Palette({ open, onClose, actions, onPickWine, onPickTerm
   const items = useMemo(() => {
     const base = [
       ...actions.map((a) => ({ ...a, group: "Actions", key: `a-${a.id}` })),
-      ...SECTIONS.map(([label, id]) => ({ id, label, group: "Go to", key: `s-${id}`, run: () => onGoto(id) })),
+      ...SECTIONS.map(([label, page, sub]) => ({ id: label, label, group: "Go to", key: `s-${label}`, run: () => go(page, sub) })),
     ];
     const needle = q.trim().toLowerCase();
     if (!needle) return base;
     const pool = [
       ...base,
-      ...allWines.map((w) => ({ id: w.name, label: w.name, hint: `${w.style} · ${w.country}`, group: "Wines", key: `w-${w.name}`, kw: `${w.notes} ${w.pairings}`, run: () => onPickWine(w.name) })),
+      ...allWines.map((w) => ({ id: w.name, label: w.name, hint: `${w.style}, ${w.country}`, group: "Wines", key: `w-${w.name}`, kw: `${w.notes} ${w.pairings}`, run: () => onPickWine(w.name) })),
+      ...Object.keys(pairingData).map((f) => ({ id: f, label: `What to drink with ${f.toLowerCase()}`, hint: "Pairing", group: "Food", key: `f-${f}`, kw: f, run: () => { try { sessionStorage.setItem("wai-food", f); } catch { /* ignore */ } window.dispatchEvent(new CustomEvent("wai-food", { detail: f })); go("pair"); } })),
       ...wineTerms.map(([l, t, d]) => ({ id: l, label: t, hint: "Wine word", group: "Terms", key: `t-${t}`, kw: d, run: () => onPickTerm(l) })),
     ];
     return pool
@@ -44,7 +49,7 @@ export default function Palette({ open, onClose, actions, onPickWine, onPickTerm
       .sort((a, b) => b.score - a.score)
       .slice(0, 30)
       .map((x) => x.it);
-  }, [q, actions, onGoto, onPickWine, onPickTerm]);
+  }, [q, actions, onPickWine, onPickTerm]);
 
   useEffect(() => setIdx(0), [q]);
   useEffect(() => { listRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" }); }, [idx]);
@@ -66,13 +71,13 @@ export default function Palette({ open, onClose, actions, onPickWine, onPickTerm
           <Icon name="search" />
           <input
             ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey}
-            placeholder="Search wines, terms, or run a command…" role="combobox" aria-expanded="true" aria-controls="palette-list"
+            placeholder="Search wines, words, pages and actions" role="combobox" aria-expanded="true" aria-controls="palette-list"
             aria-activedescendant={items[idx] ? `opt-${items[idx].key}` : undefined} aria-autocomplete="list" autoComplete="off" spellCheck="false"
           />
           <kbd>esc</kbd>
         </div>
         <ul id="palette-list" role="listbox" ref={listRef} className="palette-list" aria-label="Results">
-          {items.length === 0 && <li className="palette-empty" role="presentation">No matches. Press Enter on “Ask Sommy” below, or try another word.</li>}
+          {items.length === 0 && <li className="palette-empty" role="presentation">Nothing matches that. Try another word, or ask Sommy below.</li>}
           {items.map((it, i) => {
             const head = it.group !== lastGroup ? <li role="presentation" className="palette-group" key={`g-${it.group}`}>{it.group}</li> : null;
             lastGroup = it.group;
@@ -85,8 +90,8 @@ export default function Palette({ open, onClose, actions, onPickWine, onPickTerm
           })}
         </ul>
         <div className="palette-foot">
-          <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> select</span><span><kbd>/</kbd> or <kbd>⌘K</kbd> open anywhere</span>
-          {q.trim() && <button onClick={() => { onClose(); actions.find((a) => a.id === "chat")?.run(q.trim()); }}>Ask Sommy “{q.trim().slice(0, 24)}” →</button>}
+          <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> select</span><span><kbd>/</kbd> opens search anywhere</span>
+          {q.trim() && <button onClick={() => { onClose(); actions.find((a) => a.id === "chat")?.run(q.trim()); }}>Ask Sommy about “{q.trim().slice(0, 24)}”</button>}
         </div>
       </div>
     </div>

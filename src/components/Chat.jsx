@@ -8,12 +8,12 @@ import { resizeImage } from "../lib/image";
 import { canSpeak, speak, stopSpeaking } from "../lib/speech";
 
 const STARTERS = [
-  ["🍷", "Explain tannins like I'm five"],
-  ["🍲", "What pairs with sinigang or adobo?"],
-  ["💸", "Suggest a budget red for pizza night"],
-  ["🏷️", "How do I read a wine label?"],
-  ["🧊", "Should I chill red wine?"],
-  ["📸", "I'll send a label photo, tell me about it"],
+  ["drop", "Explain tannins like I'm five"],
+  ["plate", "What pairs with sinigang or adobo?"],
+  ["tag", "Suggest a budget red for pizza night"],
+  ["book", "How do I read a wine label?"],
+  ["thermo", "Should I chill red wine in Manila heat?"],
+  ["clip", "I'll send a label photo, tell me about it"],
 ];
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -27,7 +27,7 @@ function Bubble({ m, isLast, busy, dev, onRegen, onChip }) {
     return (
       <div className="msg user">
         <div className="bubble">
-          {m.hadImage && <span className="img-pill">📷 label photo</span>}
+          {m.hadImage && <span className="img-pill"><Icon name="clip" size={14} /> Label photo</span>}
           {m.content}
         </div>
       </div>
@@ -47,7 +47,7 @@ function Bubble({ m, isLast, busy, dev, onRegen, onChip }) {
 
   return (
     <div className="msg bot">
-      <span className="avatar" aria-hidden="true">S</span>
+      <span className="avatar" aria-hidden="true"><Icon name="glass" size={16} /></span>
       <div className="msg-main">
         <div className={`bubble ${m.error ? "error" : ""}`}>
           {body ? <Markdown text={body} /> : <span className="typing" aria-label="Sommy is typing"><i /><i /><i /></span>}
@@ -204,28 +204,28 @@ export default function Chat({ open, setOpen, pending, dev }) {
           <Icon name="spark" size={22} /> <span>Ask Sommy</span>
         </button>
       )}
-      <aside className={`chat ${open ? "open" : ""}`} role="dialog" aria-label="Chat with Sommy, your AI wine guide" aria-hidden={!open} inert={!open}>
-        <header className="chat-head">
-          <span className="avatar big" aria-hidden="true">S</span>
+      <div className={`chat ${open ? "open" : ""}`} role="dialog" aria-label="Chat with Sommy, your AI wine guide" aria-hidden={!open} inert={!open}>
+        <div className="chat-head">
+          <span className="avatar big" aria-hidden="true"><Icon name="glass" size={20} /></span>
           <div>
             <h2>Sommy <span className="badge">AI</span>{dev && <span className="badge dev">DEV</span>}</h2>
-            <p>{busy ? "Thinking…" : "Free AI wine guide · ask anything"}</p>
+            <p>{busy ? "Thinking" : "Free AI wine guide"}</p>
           </div>
           <div className="chat-head-actions">
             {messages.length > 0 && <button className="icon-btn" onClick={clear} aria-label="Start a new chat" title="New chat"><Icon name="trash" size={18} /></button>}
             <button className="icon-btn" onClick={() => setOpen(false)} aria-label="Close chat"><Icon name="x" /></button>
           </div>
-        </header>
+        </div>
 
         <div className="chat-body" ref={listRef} onScroll={onScroll} role="log" aria-live="polite" aria-relevant="additions text" aria-label="Conversation">
           {messages.length === 0 ? (
             <div className="chat-welcome">
-              <span className="avatar xl" aria-hidden="true">S</span>
-              <h3>Hi, I'm Sommy 👋</h3>
+              <span className="avatar xl" aria-hidden="true"><Icon name="glass" size={30} /></span>
+              <h3>Hi, I'm Sommy</h3>
               <p>Ask me anything about wine: what to buy, what to pour with dinner, what that label means. I remember our conversation, so just keep chatting.</p>
               <ul className="starters">
                 {STARTERS.map(([e, t]) => (
-                  <li key={t}><button onClick={() => (t.startsWith("I'll send") ? fileRef.current?.click() : send(t))}><span aria-hidden="true">{e}</span>{t}</button></li>
+                  <li key={t}><button type="button" onClick={() => (t.startsWith("I'll send") ? fileRef.current?.click() : send(t))}><Icon name={e} size={18} />{t}</button></li>
                 ))}
               </ul>
             </div>
@@ -262,7 +262,7 @@ export default function Chat({ open, setOpen, pending, dev }) {
           </div>
           <p className="fine">AI can make mistakes. Check labels, and please drink responsibly.</p>
         </form>
-      </aside>
+      </div>
     </>
   );
 }

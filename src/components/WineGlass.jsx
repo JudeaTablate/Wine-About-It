@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-export default function WineGlass({ fill, rotation, setRotation, onWheel }) {
+export default function WineGlass({ fill, rotation, setRotation, onWheel, tint = "#74152e", label }) {
+  const matsRef = useRef(null);
   const mountRef = useRef(null);
   const groupRef = useRef(null);
   const targetFillRef = useRef(fill);
@@ -170,6 +171,8 @@ export default function WineGlass({ fill, rotation, setRotation, onWheel }) {
       side: THREE.DoubleSide
     });
 
+    matsRef.current = { wineMat, wineTopMat };
+
     // Inner radius lookup matches the actual bowl, so the wine hugs the glass.
     const radiusAt = (y) => {
       const points = [
@@ -328,6 +331,17 @@ export default function WineGlass({ fill, rotation, setRotation, onWheel }) {
   }, []);
 
   useEffect(() => {
+    const m = matsRef.current;
+    if (!m) return;
+    const c = new THREE.Color(tint);
+    m.wineMat.color.copy(c);
+    m.wineTopMat.color.copy(c.clone().offsetHSL(0, 0, 0.08));
+    const clear = c.getHSL({}).l > 0.5;
+    m.wineMat.transparent = clear; m.wineMat.opacity = clear ? 0.86 : 1;
+    m.wineMat.needsUpdate = true;
+  }, [tint]);
+
+  useEffect(() => {
     const g = groupRef.current;
     if (!g) return;
     g.rotation.x = THREE.MathUtils.degToRad(rotation.x * 0.32);
@@ -360,7 +374,7 @@ export default function WineGlass({ fill, rotation, setRotation, onWheel }) {
       onWheel={onWheel}
       role="img"
       tabIndex={0}
-      aria-label="Interactive 3D wine glass. Drag to rotate, scroll or use the arrow keys to change the wine level."
+      aria-label={label || "Interactive 3D wine glass. Drag or use the left and right arrow keys to turn it. Up and down arrows change the wine level."}
       onKeyDown={(e)=>{if(e.key==="ArrowLeft")setRotation(r=>({...r,y:r.y-10}));if(e.key==="ArrowRight")setRotation(r=>({...r,y:r.y+10}));}}
     />
   );

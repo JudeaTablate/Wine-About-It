@@ -1,38 +1,31 @@
 import { Logo } from "./ui";
+import { PAGES, href } from "../lib/router";
 
-export default function Footer({ dev, setDev, openPalette }) {
+export default function Footer({ dev, setDev, openPalette, openSettings }) {
   return (
-    <footer className="footer">
+    <footer className="foot">
       <div className="wrap foot-grid">
-        <div>
-          <a className="brand" href="#top"><Logo /><span className="brand-text">Wine About It<small>WINE 101</small></span></a>
-          <p className="foot-line">Wine doesn't have to be complicated.</p>
-          <p className="fine">Please enjoy responsibly and only if you're of legal drinking age. Educational content, not medical advice.</p>
+        <div className="foot-brand">
+          <a className="brand" href={href("home")}><Logo /><span>Wine About It</span></a>
+          <p>A Wine 101 for people who just want to enjoy a glass. Made in Manila.</p>
+          <p className="fine">Please drink responsibly and only if you are of legal drinking age. This site teaches about wine and is not medical advice.</p>
         </div>
+        <nav aria-label="Footer">
+          <h2 className="foot-h">Pages</h2>
+          <ul className="foot-list">{PAGES.map((p) => <li key={p.id}><a href={href(p.id)}>{p.label}</a></li>)}</ul>
+        </nav>
         <div>
-          <h2 className="foot-h">Under the hood</h2>
+          <h2 className="foot-h">Make it work for you</h2>
           <ul className="foot-list">
-            <li>React 19 + Vite, code-split</li>
-            <li>Three.js loaded only when you scroll to it</li>
-            <li>Streaming AI chat through a serverless proxy (keys never reach the browser)</li>
-            <li>Dark mode, reduced-motion and keyboard friendly</li>
-            <li>No accounts, no trackers</li>
+            <li><button type="button" className="link-btn" onClick={openSettings}>Text size, contrast and motion</button></li>
+            <li><button type="button" className="link-btn" onClick={openPalette}>Search everything</button> <kbd>/</kbd></li>
+            <li><button type="button" className="link-btn" aria-pressed={dev} onClick={() => setDev(!dev)}>Developer mode is {dev ? "on" : "off"}</button></li>
+            <li><a href="https://github.com/JudeaTablate/Wine-About-It" target="_blank" rel="noopener noreferrer">Source code on GitHub<span className="sr-only"> (opens in a new tab)</span></a></li>
           </ul>
         </div>
-        <div>
-          <h2 className="foot-h">Shortcuts</h2>
-          <ul className="foot-list">
-            <li><kbd>/</kbd> or <kbd>Ctrl/⌘</kbd> <kbd>K</kbd> command palette</li>
-            <li><kbd>Esc</kbd> close chat or palette</li>
-            <li><kbd>Enter</kbd> send · <kbd>Shift</kbd> <kbd>Enter</kbd> new line</li>
-          </ul>
-          <div className="foot-links">
-            <button className="link-btn" onClick={openPalette}>Open palette</button>
-            <button className="link-btn" aria-pressed={dev} onClick={() => setDev(!dev)}>Developer mode: {dev ? "on" : "off"}</button>
-            <a href="https://github.com/JudeaTablate/Wine-About-It" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a>
-            <a href="#top">Back to top ↑</a>
-          </div>
-        </div>
+      </div>
+      <div className="wrap foot-base">
+        <p>Your saved wines, journal and settings stay in this browser. No accounts, no trackers.</p>
       </div>
     </footer>
   );

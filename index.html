@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wine About It — Wine 101 without the snobbery</title>
-    <meta name="description" content="A free, interactive Wine 101: a 3D glass lab, A–Z wine directory, tasting guide, food pairings and a conversational AI sommelier (Sommy). No snobbery, no sign-up." />
+    <meta name="description" content="A free, accessible Wine 101: a flavor map of 52 wines, tasting guide, label decoder, food pairings (including Filipino dishes), party and chilling calculators, a tasting journal and Sommy, an AI wine guide. No snobbery, no sign-up." />
     <meta name="theme-color" content="#f7f2ea" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#17120f" media="(prefers-color-scheme: dark)" />
     <link rel="canonical" href="https://wine-about-it.vercel.app/" />
@@ -24,21 +24,23 @@
     <meta name="twitter:description" content="Learn wine by playing with it. Free, no sign-up, with an AI sommelier you can chat with." />
     <meta name="twitter:image" content="https://wine-about-it.vercel.app/og.png" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@500&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet" />
-
     <script type="application/ld+json">
     {"@context":"https://schema.org","@type":"WebSite","name":"Wine About It","alternateName":"Wine 101","url":"https://wine-about-it.vercel.app/","description":"Interactive, beginner-friendly Wine 101 with an AI sommelier.","inLanguage":"en","author":{"@type":"Person","name":"Judea Ann Tablate"}}
     </script>
     <script>
       (function () {
-        var d = document.documentElement;
-        try {
-          var t = localStorage.getItem("wai-theme");
-          if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-          d.dataset.theme = t;
-        } catch (e) {}
+        var d = document.documentElement, a = {};
+        try { a = JSON.parse(localStorage.getItem("wai-a11y") || "{}") || {}; } catch (e) {}
+        var t = a.theme || "system";
+        if (t === "system") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        d.dataset.theme = t;
+        d.dataset.contrast = a.contrast || "standard";
+        d.dataset.motion = a.motion || "system";
+        d.dataset.font = a.font || "default";
+        d.dataset.spacing = a.spacing || "normal";
+        d.dataset.links = a.links || "auto";
+        d.style.fontSize = (a.scale || 100) + "%";
+        d.dataset.large = (a.scale || 100) >= 130 ? "1" : "0";
         d.classList.add("js");
       })();
     </script>
